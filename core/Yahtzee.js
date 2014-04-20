@@ -3,7 +3,7 @@ var _ = require('lodash');
 //private variables
 var players = {};
 
-module.exports = {
+Yahtzee = {
     /**
      * Returns a card representing all possible scoring values for a given set of die.
      * @param {array} die - The array of die values
@@ -41,10 +41,10 @@ module.exports = {
                     .sortBy('length')
                     .value();
 
-        if (group.length == 2 && group[0].length == 2) card.full_house = 25;
-        if (group.length == 1) card.yahtzee = 50;
-        if (_.last(group).length >= 3) card.three_of_a_kind = card.chance;
-        if (_.last(group).length >= 4) card.four_of_a_kind = card.chance;
+        card.full_house      = (group[0].length == 2 && group[1].length == 3) ? 25 : 0;
+        card.yahtzee         = group.length ==1 ? 50 : 0;
+        card.three_of_a_kind = _.last(group).length >= 3 ? card.chance : 0;
+        card.four_of_a_kind  = _.last(group).length >= 4 ? card.chance : 0;
         return card;
     },
     addPlayer: function (name){
@@ -71,17 +71,21 @@ module.exports = {
  * The Player class. Keeps track of all information regarding a player.
  * @param {string} name - The name of the player (Nick).
  */
-module.exports.Player = function (name){
+Yahtzee.Player = function (name){
     this.name = name;
-    this.card = new module.exports.Card();
+    this.card = new Yahtzee.Card();
     this.newTurn();
     this.done = false;
 };
-_.assign(module.exports.Player.prototype, {
+_.assign(Yahtzee.Player.prototype, {
+    /**
+     * Sets the player up to begin a new turn.
+     */
     newTurn: function () {
         this.lastRoll = [];
         this.rollTimes = 0;
     },
+
     /**
      * Rolls the die.
      * @param {dieToKeep} an array of die that should be held from the last turn.
@@ -113,13 +117,17 @@ _.assign(module.exports.Player.prototype, {
         return this.name + " rolled (" + die.join(", ") + "). " + (3-this.rollTimes) + " rolls left for this turn.";
     },
 
+    /**
+     * Allows the player to score under the given category based on the last dice roll.
+     * @param {string} category - The category to score under.
+     */
     score: function (category) {
         var card = this.card, dieScore, unused;
 
         if (_.isEmpty(this.lastRoll))
             return this.name + ", you haven't rolled yet. Please use !roll before trying to score.";
         
-        dieScore = module.exports.getDieScoring(this.lastRoll);
+        dieScore = Yahtzee.getDieScoring(this.lastRoll);
 
 
         unused = _.chain(card)
@@ -148,9 +156,8 @@ _.assign(module.exports.Player.prototype, {
             return this.name +", that ends your game. Final score: " + this.card.total();
         } else {
             this.newTurn();
+            return this.name + ", you've just scored another " + (+dieScore[category]) + " points. Roll again.";
         }
-
-        return this.name + ", you've just scored another " + (+dieScore[category]) + " points. Roll again.";
     }
 });
 
@@ -158,7 +165,7 @@ _.assign(module.exports.Player.prototype, {
 /**
  * The Card class. Represents a Yahtzee scoring card.
  */
-module.exports.Card = function(){
+Yahtzee.Card = function(){
     _.assign(this, {
         aces: null,
         twos: null,
@@ -175,6 +182,10 @@ module.exports.Card = function(){
         chance: null
     });
 };
-module.exports.Card.prototype.total = function () {
+Yahtzee.Card.prototype.total = function () {
     return _.reduce(this, function(a,b){return a+b;});
 };
+
+
+
+module.exports = Yahtzee;
