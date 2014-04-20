@@ -43,7 +43,7 @@ module.exports = {
 
         if (group.length == 2 && group[0].length == 2) card.full_house = 25;
         if (group.length == 1) card.yahtzee = 50;
-        if (_.last(group).length >= 3) card.three_of_a_kind = card.chance
+        if (_.last(group).length >= 3) card.three_of_a_kind = card.chance;
         if (_.last(group).length >= 4) card.four_of_a_kind = card.chance;
         return card;
     },
@@ -95,7 +95,7 @@ _.assign(module.exports.Player.prototype, {
             return this.name + ", you are out of rolls and must score.";
 
         if (this.rollTimes > 0 && _.isEmpty(dieToKeep))
-            return this.name + ", last roll: " + this.lastRoll.join(",") + ". Please include the dice you want to keep in your command. Syntax: !roll 1 2 3";
+            return this.name + ", last roll: (" + this.lastRoll.join(", ") + "). Please include the dice you want to keep in your command. Syntax: !roll 1 2 3";
     
         if (this.rollTimes > 0) {
             die = _.filter(die, function(val){
@@ -110,23 +110,34 @@ _.assign(module.exports.Player.prototype, {
         this.lastRoll = die;
         this.rollTimes++;
 
-        return this.name + " rolled " + die.join(",") + ". " + (3-this.rollTimes) + " rolls left for this turn.";
+        return this.name + " rolled (" + die.join(", ") + "). " + (3-this.rollTimes) + " rolls left for this turn.";
     },
 
     score: function (category) {
-        var card = this.card;
-        var dieScore = module.exports.getDieScoring(this.lastRoll);
+        var card = this.card, dieScore, unused;
 
-        var unused = _.chain(card)
-                        .map(function(val, key){
-                            return val === null ? key : '';
-                        })
-                        .compact()
-                        .value()
-                        .join(', ');
+        if (_.isEmpty(this.lastRoll))
+            return this.name + ", you haven't rolled yet. Please use !roll before trying to score.";
+        
+        dieScore = module.exports.getDieScoring(this.lastRoll);
+
+
+        unused = _.chain(card)
+                    .map(function(val, key){
+                        return val === null ? key : '';
+                    })
+                    .compact()
+                    .value()
+                    .join(', ');
+
+        if (category == "yahtzee" && card.yahtzee!==0 && dieScore[category] !== null) {
+            card.yahtzee+=100;
+            return "Amazing! " + this.name + " just scored a bonus yahtzee. +100 points.";
+        }
 
         if (!card.hasOwnProperty(category))
             return this.name + ", please choose one of the following unused categories: " + unused;
+
         if (card[category] !== null)
             return this.name+", you've already used that category. Categories left: " + unused;
         
@@ -139,7 +150,7 @@ _.assign(module.exports.Player.prototype, {
             this.newTurn();
         }
 
-        return this.name + ", you've just scored another " + (dieScore[category]) + " points. Roll again.";
+        return this.name + ", you've just scored another " + (+dieScore[category]) + " points. Roll again.";
     }
 });
 
