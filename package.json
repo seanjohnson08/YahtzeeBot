@@ -1,0 +1,16 @@
+{
+  "name": "YahtzeeBot",
+  "version": "0.0.1",
+  "description": "An IRC bot to play Yahtzee with",
+  "main": "bot.js",
+  "dependencies": {
+    "irc": "~0.3.6",
+    "lodash": "~2.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sean Johnson",
+  "license": "ISC"
+}
