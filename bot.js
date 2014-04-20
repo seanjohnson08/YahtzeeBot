@@ -65,10 +65,6 @@ bot.addListener('message', function(from, to, text, message) {
     message.args = parsed[2] ? parsed[2].split(/[\s,]+/) : [];
 
     if (!commands[cmd]) return;
-
-    //The only reason we'd be here is if either player exists,
-    //or the !join command has been invoked. !join takes from, while everything else
-    //uses the player object.
     commands[cmd](from, to, text, message);
 
 });
