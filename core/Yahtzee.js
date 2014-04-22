@@ -9,7 +9,6 @@ Yahtzee = {
      * @param {array} die - The array of die values
      */
     getDieScoring: function (die) {
-        die.sort();
 
         var i,
             card = new this.Card(),
@@ -21,41 +20,46 @@ Yahtzee = {
                 5: 'fives',
                 6: 'sixes'
             },
-            sequential = 1;
+            sequential = 1,
+            maxSequential = 1;
 
+        die.sort();
+        
         die.forEach(function(val, i){
             card[numberNames[val]] += val;
-
             card.chance += val;
 
             if (i && die[i-1] == val-1) sequential++;
             else if (i && die[i-1] != val) sequential = 1;
-
-            if (sequential == 4) card.sm_straight = 30;
-            if (sequential == 5) card.lg_straight = 40;
+            maxSequential = Math.max(sequential, maxSequential);
         });
-
         var group = _.chain(die)
                     .groupBy()
                     .values()
                     .sortBy('length')
                     .value();
 
-        card.full_house      = (group[0].length == 2 && group[1].length == 3) ? 25 : 0;
+        card.sm_straight     = sequential == 4 ? 30 : 0;
+        card.lg_straight     = sequential == 5 ? 40 : 0;
+        card.full_house      = group[0].length == 2 && group[1].length == 3 ? 25 : 0;
         card.yahtzee         = group.length ==1 ? 50 : 0;
         card.three_of_a_kind = _.last(group).length >= 3 ? card.chance : 0;
         card.four_of_a_kind  = _.last(group).length >= 4 ? card.chance : 0;
         return card;
     },
+
     addPlayer: function (name){
        players[name] = new this.Player(name);
     },
+
     getPlayer: function (name) {
         return players[name];
     },
+
     getPlayerList: function () {
         return _.keys(players);
     },
+
     ensurePlaying: function (name) {
         var player = this.getPlayer(name);
 
@@ -138,8 +142,9 @@ _.assign(Yahtzee.Player.prototype, {
                     .value()
                     .join(', ');
 
-        if (category == "yahtzee" && card.yahtzee!==0 && dieScore[category] !== null) {
+        if (category == "yahtzee" && card.yahtzee !== null && dieScore[category] !== null) {
             card.yahtzee+=100;
+            this.newTurn();
             return "Amazing! " + this.name + " just scored a bonus yahtzee. +100 points.";
         }
 
