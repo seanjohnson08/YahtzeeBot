@@ -11,24 +11,24 @@ module.exports = function(bot) {
              * 2. If the user has rolled, then use the list of numbers passed in to "keep"
              *    from the last roll and roll again.
              */
-            roll : function(from, to, text, message) {
-                bot.say(to, Yahtzee.ensurePlaying(from) ||
-                            Yahtzee.getPlayer(from).roll(message.args));
+            roll : function(message) {
+                bot.say(message.to, Yahtzee.ensurePlaying(message.from) ||
+                            Yahtzee.getPlayer(message.from).roll(message.args));
             },
 
             /**
              * Adds the player to the current game.
              */
-            join : function (from, to, text, message) {
-                Yahtzee.addPlayer(from);
-                bot.say(to, from + " has joined the game. Currently playing: " + Yahtzee.getPlayerList().join(', '));
+            join : function (message) {
+                Yahtzee.addPlayer(message.from);
+                bot.say(message.to, message.from + " has joined the game. Currently playing: " + Yahtzee.getPlayerList().join(', '));
             },
 
             /**
              * Displays the list of users and their scores.
              */
             scoreboard : function (from, to, text, message) {
-                bot.say(to, 'Current scores: ' + _.map(Yahtzee.getPlayerList(), function(name){
+                bot.say(message.to, 'Current scores: ' + _.map(Yahtzee.getPlayerList(), function(name){
                     var player = Yahtzee.getPlayer(name);
                     return name + ': ' + player.card.total();
                 }).join(', '));
@@ -38,9 +38,9 @@ module.exports = function(bot) {
              * Handles the "score" command.
              * Allows the user to score under the category of their choosing.
              */
-            score : function (from, to, text, message) {
-                bot.say(to, Yahtzee.ensurePlaying(from) ||
-                            Yahtzee.getPlayer(from).score(message.args[0]));
+            score : function (message) {
+                bot.say(message.to, Yahtzee.ensurePlaying(message.from) ||
+                            Yahtzee.getPlayer(message.from).score(message.args[0]));
             }
         };
 

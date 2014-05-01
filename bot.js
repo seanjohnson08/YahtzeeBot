@@ -3,7 +3,7 @@ var irc = require('irc'),
     fs = require("fs");
 
 var ircConfig = {
-    channels: ['##farce-games'],
+    channels: ['##farce'],
     server: 'irc.freenode.net',
     botName: 'yahtzeebot',
     commandPrefix: '!'
@@ -29,7 +29,10 @@ bot.addListener('message', function(from, to, text, message) {
 
     cmd = parsed[1];
     message.args = parsed[2] ? parsed[2].split(/[\s,]+/) : [];
+    message.from = from;
+    message.to = to;
+    message.text = text;
 
-    if (commands.hasOwnProperty(cmd)) commands[cmd](from, to, text, message);
+    if (commands.hasOwnProperty(cmd)) commands[cmd](message);
 
 });

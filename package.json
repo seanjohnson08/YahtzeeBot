@@ -5,7 +5,8 @@
   "main": "bot.js",
   "dependencies": {
     "irc": "~0.3.6",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "request": "^2.34.0"
   },
   "devDependencies": {},
   "scripts": {
