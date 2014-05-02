@@ -19,8 +19,9 @@ var commands = {};
 
 var loadCommand = function(file){
   var cmds = {};
+  if (!fs.existsSync(CMDDIR + file)) return false;
   try {
-    cmds[file.split('.').slice(0,-1).join('.')] = require("./commands/" + file)(bot);
+    cmds[file.split('.').slice(0,-1).join('.')] = require(CMDDIR + file)(bot);
   } catch(e) {
     console.error(e);
   } finally {
