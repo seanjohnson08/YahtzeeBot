@@ -9,16 +9,44 @@ var ircConfig = {
     commandPrefix: '!'
 };
 
+const CMDDIR = "./commands/";
+
 var bot = new irc.Client(ircConfig.server, ircConfig.botName, {
     channels: ircConfig.channels
 });
 
 var commands = {};
 
-fs.readdirSync("./commands").forEach(function(file) {
+var loadCommand = function(file){
   var cmds = {};
-  cmds[file.split('.').slice(0,-1).join('.')] = require("./commands/" + file)(bot);
-  _.extend(commands, cmds);
+  try {
+    cmds[file.split('.').slice(0,-1).join('.')] = require("./commands/" + file)(bot);
+  } catch(e) {
+    console.error(e);
+  } finally {
+    _.extend(commands, cmds);
+  }
+};
+
+/** Initially load all command files **/
+fs.readdirSync(CMDDIR).forEach(loadCommand);
+
+/** Autoreload commands when their files are changed. **/
+fs.watch(CMDDIR, {persistent: true}, function(event, file){
+    if (event == "renamed") {
+        console.error("Auto-reloading of commands does not handle renaming. Please reload the bot for accuracy.");
+    } else {
+        console.log(file + " changed, attempting to load command.");
+
+        //Clear the require cache, attempt to load the file, if unsuccessful,
+        //restore the require cache to the old version of the command
+        var cacheKey = require.resolve(CMDDIR + file);
+        var cache = require.cache[cacheKey];
+        delete require.cache[cacheKey];
+        if (!loadCommand(file)) {
+            require.cache[cacheKey] = cache;
+        }
+    }
 });
 
 
