@@ -2,7 +2,7 @@ var _ = require('lodash'),
     Yahtzee = require('../core/Yahtzee.js');
 
 module.exports = function(bot) {
-    return function (from, to, text, message){
+    return function (message){
         var subCommands = {
             /**
              * Rolls the dice.
@@ -27,7 +27,7 @@ module.exports = function(bot) {
             /**
              * Displays the list of users and their scores.
              */
-            scoreboard : function (from, to, text, message) {
+            scoreboard : function (message) {
                 bot.say(message.to, 'Current scores: ' + _.map(Yahtzee.getPlayerList(), function(name){
                     var player = Yahtzee.getPlayer(name);
                     return name + ': ' + player.card.total();
@@ -44,7 +44,7 @@ module.exports = function(bot) {
             }
         };
 
-        if (message.args[0] && subCommands[message.args[0]]) subCommands[message.args[0]](from, to, text, message);
+        if (message.args[0] && subCommands[message.args[0]]) subCommands[message.args[0]](message);
         else bot.say(to, "Invalid command. Valid options: " + _.keys(subCommands).join(", "));
     };
 };
