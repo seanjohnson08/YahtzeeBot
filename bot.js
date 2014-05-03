@@ -18,6 +18,13 @@ var bot = new irc.Client(ircConfig.server, ircConfig.botName, {
     channels: ircConfig.channels
 });
 
+require("mongodb").MongoClient.connect('mongodb://127.0.0.1:27017/nodeircbot', function(err, db){
+    bot.db = db;
+    if (err) {
+        console.error("Could not connect to MongoDB.");
+    }
+});
+
 var commands = {};
 
 var loadCommand = function(file){
