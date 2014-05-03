@@ -10,6 +10,9 @@ var ircConfig = {
 };
 
 const CMDDIR = "./commands/";
+const PLUGINS = "./plugins/";
+
+/* End Config */
 
 var bot = new irc.Client(ircConfig.server, ircConfig.botName, {
     channels: ircConfig.channels
@@ -48,6 +51,11 @@ fs.watch(CMDDIR, {persistent: true}, function(event, file){
             require.cache[cacheKey] = cache;
         }
     }
+});
+
+/** Load all plugins **/
+fs.readdirSync(PLUGINS).forEach(function(file){
+    require(PLUGINS + file)(bot);
 });
 
 
