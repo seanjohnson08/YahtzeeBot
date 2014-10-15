@@ -40,7 +40,7 @@ module.exports = function(bot) {
              */
             score : function (message) {
                 bot.say(message.to, Yahtzee.ensurePlaying(message.from) ||
-                            Yahtzee.getPlayer(message.from).score(message.args[0]));
+                            Yahtzee.getPlayer(message.from).score(message.args[1]));
             }
         };
 
